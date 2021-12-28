@@ -32,7 +32,7 @@ const App = () => {
         );
 
         const channel = await client.channel('gaming', 'gaming-demo', {
-          name: 'Mr Mujib',
+          name: 'Mr Mujin',
         })
         setChannel(channel)
 
