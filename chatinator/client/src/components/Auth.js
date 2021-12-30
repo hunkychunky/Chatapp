@@ -1,22 +1,41 @@
 import { useState } from "react"
-
+import axios from "axios"
+import { useCookies } from "react-cookie";
+// import {useCookies} from "react-cookie"
 const Auth = () => {
-    const [username, setUsername] = useState(null);
-    console.log(username);
-    const [password, setPassword] = useState(null);
-    console.log(password);
-    const [password_check, setConfirmedPassword] = useState(null);
-    console.log(password_check);
-    const [error, setError] = useState(false);
+    const [cookies, setCookie, removeCookie] = useCookies(['user']);
     const [isLogin, setIsLogin] = useState(true);
+    const [username, setUsername] = useState(null);
+    const [password, setPassword] = useState(null);
+    const [password_checked, setConfirmedPassword] = useState(null);
+    const [error, setError] = useState(false);
+    console.log(username, password, password_checked);
+    
+    
 
-    const handleSubmit =()=> {
+    const handleSubmit = async (endpoint) => {
+        console.log(endpoint);
         console.log('submitted');
-        if (password !== password_check){
+        if (!isLogin && password !== password_checked){
             setError(true)
             return
         }
+
+        const response = await axios.post(`http://localhost:8000/${endpoint}`, {
+            username,
+            password
+        })
+
+        console.log(response);
+
+        setCookie('Name', response.data.username)
+        setCookie('HashedPassword', response.data.hashedPassword)
+        setCookie('UserId', response.data.userId)
+        setCookie('AuthToken', response.data.token)
+
+        window.location.reload()
     }
+
     return (
         <div className="auth-container">
            <div className="auth-container-box">
@@ -37,13 +56,13 @@ const Auth = () => {
                    />
                    {!isLogin && <input 
                       type="password" 
-                      id="password_check" 
-                      name="password_check"
+                      id="password_checked" 
+                      name="password_checked"
                       placeholder="Confirm Password" 
                       onChange={(u) => setConfirmedPassword(u.target.value)}
                    />}
                    {error && <p> Please make sure the passwords match :)</p>}
-                   <button className="standard-button" onClick={handleSubmit}> Let's GO! </button>
+                   <button className="standard-button" onClick={handleSubmit( isLogin ? 'login' : 'signup')}> Let's go! </button>
                </div>
                <div className="auth-options">
                    <button 
